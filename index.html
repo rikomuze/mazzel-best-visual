@@ -7,6 +7,7 @@
   <meta property="og:title" content="MAZZEL Best Visual 9">
 <meta property="og:description" content="画像から好きなアーティストショットを選んでベストビジュを作れます">
 <meta property="og:image" content="https://rikomuze.github.io/mazzel-best-visual/og.jpg">
+  <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
   <style>
     body {
       margin: 0;
@@ -198,9 +199,10 @@
 
   <div class="buttons">
     <button onclick="randomize()">ランダム</button>
+     <button onclick="saveImage()">画像保存</button>
   </div>
 
-  <div class="grid">
+<div class="grid" id="capture">
     <div class="card" onclick="openPicker(this, 'kairyu')">
       <img src="images/kairyu/01.jpg" alt="KAIRYU">
       <p>KAIRYU</p>
@@ -321,6 +323,19 @@
         card.querySelector("img").src = "images/" + member + "/" + fileName(num);
       });
     }
+  function saveImage() {
+    const target = document.getElementById("capture");
+
+    html2canvas(target, {
+      backgroundColor: "#f3f3f3",
+      scale: 2
+    }).then(canvas => {
+      const link = document.createElement("a");
+      link.download = "mazzel-best-visual-9.png";
+      link.href = canvas.toDataURL("image/png");
+      link.click();
+    });
+  }
   </script>
 
 </body>
