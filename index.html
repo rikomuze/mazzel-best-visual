@@ -4,6 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>MAZZEL Best Visual 9</title>
+  <meta property="og:title" content="MAZZEL Best Visual 9">
+<meta property="og:description" content="画像から好きなアーティストショットを選んでベストビジュを作れます">
+<meta property="og:image" content="https://rikomuze.github.io/mazzel-best-visual/og.jpg">
+  <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
   <style>
     body {
       margin: 0;
@@ -174,13 +178,13 @@
         margin-bottom: 20px;
       }
 
-      .grid {
-        grid-template-columns: repeat(2, 1fr);
-      }
+    .grid {
+  grid-template-columns: repeat(3, 1fr);
+}
 
-      #options {
-        grid-template-columns: repeat(2, 1fr);
-      }
+    #options {
+  grid-template-columns: repeat(3, 1fr);
+}
 
       .picker-box {
         padding: 18px;
@@ -191,55 +195,56 @@
 <body>
 
   <h1>MAZZEL Best Visual 9</h1>
-  <p class="subtitle">画像から好きなアーティストショットを選んでください</p>
+  <p class="subtitle">画像をタップして好きなアーティストショットを選んでください</p>
 
   <div class="buttons">
     <button onclick="randomize()">ランダム</button>
+     <button onclick="saveImage()">画像保存</button>
   </div>
 
-  <div class="grid">
+<div class="grid" id="capture">
     <div class="card" onclick="openPicker(this, 'kairyu')">
-      <img src="images/kairyu/01.jpg" alt="KAIRYU">
+      <img src="images/kairyu/01.png" alt="KAIRYU">
       <p>KAIRYU</p>
     </div>
 
     <div class="card" onclick="openPicker(this, 'naoya')">
-      <img src="images/naoya/01.jpg" alt="NAOYA">
+      <img src="images/naoya/01.png" alt="NAOYA">
       <p>NAOYA</p>
     </div>
 
     <div class="card" onclick="openPicker(this, 'ran')">
-      <img src="images/ran/01.jpg" alt="RAN">
+      <img src="images/ran/01.png" alt="RAN">
       <p>RAN</p>
     </div>
 
     <div class="card" onclick="openPicker(this, 'seito')">
-      <img src="images/seito/01.jpg" alt="SEITO">
+      <img src="images/seito/01.png" alt="SEITO">
       <p>SEITO</p>
     </div>
 
     <div class="card group-card" onclick="openPicker(this, 'group')">
-      <img src="images/group/01.jpg" alt="MAZZEL">
+      <img src="images/group/01.png" alt="MAZZEL">
       <p>MAZZEL</p>
     </div>
 
     <div class="card" onclick="openPicker(this, 'ryuki')">
-      <img src="images/ryuki/01.jpg" alt="RYUKI">
+      <img src="images/ryuki/01.png" alt="RYUKI">
       <p>RYUKI</p>
     </div>
 
     <div class="card" onclick="openPicker(this, 'hayato')">
-      <img src="images/hayato/01.jpg" alt="HAYATO">
+      <img src="images/hayato/01.png" alt="HAYATO">
       <p>HAYATO</p>
     </div>
 
     <div class="card" onclick="openPicker(this, 'takuto')">
-      <img src="images/takuto/01.jpg" alt="TAKUTO">
+      <img src="images/takuto/01.png" alt="TAKUTO">
       <p>TAKUTO</p>
     </div>
 
     <div class="card" onclick="openPicker(this, 'eiki')">
-      <img src="images/eiki/01.jpg" alt="EIKI">
+      <img src="images/eiki/01.png" alt="EIKI">
       <p>EIKI</p>
     </div>
   </div>
@@ -254,21 +259,21 @@
 
   <script>
     const imageCounts = {
-      kairyu: 12,
-      naoya: 12,
-      ran: 12,
-      seito: 12,
-      group: 12,
-      ryuki: 12,
-      hayato: 12,
-      takuto: 12,
-      eiki: 12
+      kairyu: 15,
+      naoya: 15,
+      ran: 15,
+      seito: 15,
+      group: 15,
+      ryuki: 15,
+      hayato: 15,
+      takuto: 15,
+      eiki: 15
     };
 
     let currentCard = null;
 
     function fileName(num) {
-      return String(num).padStart(2, "0") + ".jpg";
+      return String(num).padStart(2, "0") + ".png";
     }
 
     function openPicker(card, member) {
@@ -318,6 +323,19 @@
         card.querySelector("img").src = "images/" + member + "/" + fileName(num);
       });
     }
+  function saveImage() {
+    const target = document.getElementById("capture");
+
+    html2canvas(target, {
+      backgroundColor: "#f3f3f3",
+      scale: 2
+    }).then(canvas => {
+      const link = document.createElement("a");
+      link.download = "mazzel-best-visual-9.png";
+      link.href = canvas.toDataURL("image/png");
+      link.click();
+    });
+  }
   </script>
 
 </body>
