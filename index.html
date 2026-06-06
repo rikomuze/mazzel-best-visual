@@ -323,21 +323,39 @@
         card.querySelector("img").src = "images/" + member + "/" + fileName(num);
       });
     }
- async function saveImage() {
+ let isSaving = false;
+
+async function saveImage() {
+  // 連続タップ防止
+  if (isSaving) return;
+  isSaving = true;
+
+  const saveButton = document.querySelector(
+    'button[onclick="saveImage()"]'
+  );
+
+  const originalButtonText = saveButton
+    ? saveButton.textContent
+    : "画像保存";
+
+  if (saveButton) {
+    saveButton.disabled = true;
+    saveButton.textContent = "画像を作成中…";
+  }
+
   const source = document.getElementById("capture");
 
-  // 画面サイズに左右されない保存専用エリアを作成
+  // 保存用の固定サイズエリアを画面外に作る
   const wrapper = document.createElement("div");
 
   Object.assign(wrapper.style, {
-    position: "fixed",
+    position: "absolute",
     left: "-10000px",
     top: "0",
     width: "980px",
     padding: "0",
     margin: "0",
-    background: "#f3f3f3",
-    zIndex: "-1"
+    background: "#f3f3f3"
   });
 
   // 現在選択されている画像を含めて複製
@@ -352,7 +370,11 @@
     gap: "18px"
   });
 
-  // スマホ用CSSの影響を受けないように調整
+  clone.querySelectorAll(".card").forEach((card) => {
+    card.style.transition = "none";
+    card.style.transform = "none";
+  });
+
   clone.querySelectorAll(".card p").forEach((text) => {
     text.style.fontSize = "18px";
   });
@@ -361,15 +383,17 @@
   document.body.appendChild(wrapper);
 
   try {
-    // すべての画像の読み込みを待つ
+    // 全画像の読み込みを待つ
     const images = Array.from(clone.querySelectorAll("img"));
 
     await Promise.all(
       images.map((img) => {
         if (img.complete) {
-          return img.decode
-            ? img.decode().catch(() => {})
-            : Promise.resolve();
+          if (img.decode) {
+            return img.decode().catch(() => {});
+          }
+
+          return Promise.resolve();
         }
 
         return new Promise((resolve) => {
@@ -379,13 +403,23 @@
       })
     );
 
+    const isMobile = window.matchMedia(
+      "(max-width: 640px)"
+    ).matches;
+
     const canvas = await html2canvas(clone, {
       backgroundColor: "#f3f3f3",
-      scale: 2,
+
+      // スマホは負荷を下げてフリーズしにくくする
+      // 980 × 1.5＝横1470pxで十分高画質
+      scale: isMobile ? 1.5 : 2,
+
       useCORS: true,
+      allowTaint: false,
       logging: false,
       width: 980,
-      windowWidth: 1200
+      windowWidth: 1200,
+      imageTimeout: 15000
     });
 
     const blob = await new Promise((resolve) => {
@@ -396,25 +430,64 @@
       throw new Error("画像を作成できませんでした");
     }
 
-    const imageUrl = URL.createObjectURL(blob);
-    const link = document.createElement("a");
+    const file = new File(
+      [blob],
+      "mazzel-best-visual-9.png",
+      {
+        type: "image/png"
+      }
+    );
 
-    link.download = "mazzel-best-visual-9.png";
-    link.href = imageUrl;
-
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-
-    setTimeout(() => {
-      URL.revokeObjectURL(imageUrl);
-    }, 1000);
+    // iPhoneなど、画像ファイル共有に対応している場合
+    if (
+      navigator.share &&
+      navigator.canShare &&
+      navigator.canShare({ files: [file] })
+    ) {
+      try {
+        await navigator.share({
+          files: [file],
+          title: "MAZZEL Best Visual 9",
+          text: "MAZZEL Best Visual 9を作ったよ"
+        });
+      } catch (shareError) {
+        // 共有画面を閉じただけなら何もしない
+        if (shareError.name !== "AbortError") {
+          fallbackDownload(blob);
+        }
+      }
+    } else {
+      // 共有非対応のPCやブラウザでは通常ダウンロード
+      fallbackDownload(blob);
+    }
   } catch (error) {
     console.error(error);
-    alert("画像の保存に失敗しました。もう一度お試しください。");
+    alert("画像の作成に失敗しました。もう一度お試しください。");
   } finally {
     wrapper.remove();
+    isSaving = false;
+
+    if (saveButton) {
+      saveButton.disabled = false;
+      saveButton.textContent = originalButtonText;
+    }
   }
+}
+
+function fallbackDownload(blob) {
+  const imageUrl = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+
+  link.href = imageUrl;
+  link.download = "mazzel-best-visual-9.png";
+
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+
+  setTimeout(() => {
+    URL.revokeObjectURL(imageUrl);
+  }, 1000);
 }
   </script>
 
