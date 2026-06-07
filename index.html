@@ -323,56 +323,22 @@
         card.querySelector("img").src = "images/" + member + "/" + fileName(num);
       });
     }
-let isSaving = false;
-
 async function saveImage() {
-  if (isSaving) return;
-  isSaving = true;
+  const target = document.getElementById("capture");
 
-  const button = document.querySelector(
-    'button[onclick="saveImage()"]'
-  );
+  const canvas = await html2canvas(target, {
+    backgroundColor: "#f3f3f3",
+    scale: 5
+  });
 
-  const originalText = button
-    ? button.textContent
-    : "画像保存";
-
-  if (button) {
-    button.disabled = true;
-    button.textContent = "画像を作成中…";
-  }
-
-  try {
-    const target = document.getElementById("capture");
-
-    const canvas = await html2canvas(target, {
-      backgroundColor: "#f3f3f3",
-      scale: 2,
-      useCORS: true,
-      logging: false
-    });
-
-    const blob = await new Promise((resolve) => {
-      canvas.toBlob(resolve, "image/png", 1);
-    });
-
-    if (!blob) {
-      throw new Error("画像を作成できませんでした");
-    }
-
+  canvas.toBlob(async (blob) => {
     const file = new File(
       [blob],
       "mazzel-best-visual-9.png",
-      {
-        type: "image/png"
-      }
+      { type: "image/png" }
     );
 
-    if (
-      navigator.share &&
-      navigator.canShare &&
-      navigator.canShare({ files: [file] })
-    ) {
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
       try {
         await navigator.share({
           files: [file],
@@ -380,40 +346,16 @@ async function saveImage() {
           text: "MAZZEL Best Visual 9を作ったよ"
         });
       } catch (error) {
-        if (error.name !== "AbortError") {
-          downloadImage(blob);
-        }
+        console.log("共有がキャンセルされました", error);
       }
     } else {
-      downloadImage(blob);
+      const link = document.createElement("a");
+      link.download = "mazzel-best-visual-9.png";
+      link.href = URL.createObjectURL(blob);
+      link.click();
+      URL.revokeObjectURL(link.href);
     }
-  } catch (error) {
-    console.error(error);
-    alert("画像の作成に失敗しました。もう一度お試しください。");
-  } finally {
-    isSaving = false;
-
-    if (button) {
-      button.disabled = false;
-      button.textContent = originalText;
-    }
-  }
-}
-
-function downloadImage(blob) {
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-
-  link.href = url;
-  link.download = "mazzel-best-visual-9.png";
-
-  document.body.appendChild(link);
-  link.click();
-  link.remove();
-
-  setTimeout(() => {
-    URL.revokeObjectURL(url);
-  }, 1000);
+  }, "image/png");
 }
 
   </script>
