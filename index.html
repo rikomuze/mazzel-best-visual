@@ -432,12 +432,12 @@
       <b>Muze Tool Box</b> <span>♡</span>
     </a>
     <nav class="tool-nav" aria-label="MUZE TOOL BOX 共通ナビ">
-      <a href="https://rikomuze.github.io/muze-tool-box/">TOP</a>
+      <a href="https://rikomuze.github.io/muze-tool-box/">MUZE TOOL BOXのトップ</a>
+      <a href="https://rikomuze.github.io/mazzel-best-visual/" class="active">アー写編9マス</a>
+      <a href="https://rikomuze.github.io/mazzel-best-visual-performance/">パフォ衣装編9マス</a>
       <a href="https://rikomuze.github.io/oshi-visual-6/">推しビジュ6選</a>
-      <a href="https://rikomuze.github.io/mazzel-best-visual/" class="active">最強9マス</a>
-      <a href="https://rikomuze.github.io/mazzel-logo-revamp-goods-calculator/">グッズ計算機</a>
-      <a href="https://rikomuze.github.io/otaku-numa-shindan/">オタク沼診断</a>
-      <a href="https://abaft-conga-f54.notion.site/fanmeating?pvs=74">チケット解説</a>
+      <a href="https://rikomuze.github.io/otaku-numa-shindan/">オタクタイプ診断</a>
+      <a href="https://rikomuze.github.io/mazzel-touch-campaign/">新曲キャンペーン</a>
     </nav>
   </header>
 
@@ -517,7 +517,7 @@ var imageCounts = {
 };
 
 /* ---------- 状態 ---------- */
-var selection = cells.map(function(cell){ return cell.member === "group" ? 15 : "new3"; }); // 初期表示は最新画像
+var selection = cells.map(function(cell){ return cell.member === "group" ? 16 : "new3"; }); // Groupは16枚目の最新画像を初期表示
 var currentCellIndex = null;
 var lastFocused = null;
 
@@ -560,6 +560,7 @@ function init() {
 function fileName(num) { return String(num).padStart(2, "0") + ".png"; }
 function isNewChoice(choice) { return typeof choice === "string" && choice.indexOf("new") === 0; }
 function srcForChoice(member, choice) {
+  if (member === "group" && choice === 16) return "images/group/16.jpg";
   if (isNewChoice(choice)) return "images/new-20260918/" + member + ".jpg";
   return "images/" + member + "/" + fileName(choice);
 }
@@ -572,7 +573,7 @@ function objectPositionFor(choice) {
 function choicesFor(member) {
   var existing = [15];
   for (var i = 1; i <= 14; i++) existing.push(i);
-  if (member === "group") return existing;
+  if (member === "group") return [16].concat(existing);
   return ["new3", "new2", "new1"].concat(existing);
 }
 function srcFor(index) { return srcForChoice(cells[index].member, selection[index]); }
